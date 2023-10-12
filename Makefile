@@ -15,3 +15,14 @@ list_topics:
 	docker exec -it kafka bash bin/kafka-topics.sh --list --bootstrap-server kafka:9092
 read_topic:
 	docker exec -it kafka bash bin/kafka-console-consumer.sh --topic $(topic) --from-beginning --bootstrap-server kafka:9092
+
+# Minio
+minio_console:
+	docker exec -it minio bash
+minio_bronze_layer:
+	docker exec -it minio bash -c "mc mb data/bronze"
+minio_silver_layer:
+	docker exec -it minio bash -c "mc mb data/silver"
+minio_gold_layer:
+	docker exec -it minio bash -c "mc mb data/gold"
+minio_layers: minio_bronze_layer minio_silver_layer minio_gold_layer

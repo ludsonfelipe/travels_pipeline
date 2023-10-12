@@ -1,73 +1,75 @@
 version: '3'
 
 services:
-  relational_db:
-    image: debezium/postgres:15
-    container_name: relational_db
-    hostname: relational_db
+#  relational_db:
+#    image: debezium/postgres:15
+#    container_name: relational_db
+#    hostname: relational_db
+#    environment:
+#      POSTGRES_USER: ${POSTGRES_USER}
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#      POSTGRES_DB: ${POSTGRES_DB}
+#    healthcheck:
+#      test:
+#        [
+#          'CMD',
+#          'pg_isready',
+#          '-d',
+#          '${POSTGRES_DB}',
+#          '-U',
+#          '${POSTGRES_USER}'
+#        ]
+#    ports:
+#      - '5432:5432'
+#    volumes:
+#      - ./source/relational_db/schemas/init.sql:/docker-entrypoint-initdb.d/init.sql
+#
+#  zookeeper:
+#    image: quay.io/debezium/zookeeper:2.3.4.Final
+#    ports:
+#     - 2181:2181
+#     - 2888:2888
+#     - 3888:3888
+#  
+#  kafka:
+#    image: quay.io/debezium/kafka:2.3.4.Final
+#    ports:
+#     - 9092:9092
+#    links:
+#     - zookeeper
+#    environment:
+#     - ZOOKEEPER_CONNECT=zookeeper:2181
+#  
+#  connect:
+#    image: quay.io/debezium/connect:2.3.4.Final
+#    ports:
+#     - 8083:8083
+#    links:
+#     - kafka
+#     - relational_db
+#    environment:
+#     - BOOTSTRAP_SERVERS=kafka:9092
+#     - GROUP_ID=1
+#     - CONFIG_STORAGE_TOPIC=my_connect_configs
+#     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+#     - STATUS_STORAGE_TOPIC=my_connect_statuses
+#  
+  minio:
+    image: minio/minio
+    hostname: minio
+    container_name: minio
+    ports: 
+      - '9000:9000'
+      - '9001:9001'
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'pg_isready',
-          '-d',
-          '${POSTGRES_DB}',
-          '-U',
-          '${POSTGRES_USER}'
-        ]
-    ports:
-      - '5432:5432'
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
     volumes:
-      - ./source/relational_db/schemas/init.sql:/docker-entrypoint-initdb.d/init.sql
-
-  zookeeper:
-    image: quay.io/debezium/zookeeper:2.3.4.Final
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
-  
-  kafka:
-    image: quay.io/debezium/kafka:2.3.4.Final
-    ports:
-     - 9092:9092
-    links:
-     - zookeeper
-    environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
-  
-  connect:
-    image: quay.io/debezium/connect:2.3.4.Final
-    ports:
-     - 8083:8083
-    links:
-     - kafka
-     - relational_db
-    environment:
-     - BOOTSTRAP_SERVERS=kafka:9092
-     - GROUP_ID=1
-     - CONFIG_STORAGE_TOPIC=my_connect_configs
-     - OFFSET_STORAGE_TOPIC=my_connect_offsets
-     - STATUS_STORAGE_TOPIC=my_connect_statuses
-  
+      - ./lakehouse:/data
+    command: server /data --console-address ":9001"
 #  spark:
 #    image: deltaio/delta-docker
 #    container_name: spark
 #    ports:
 #      - '8888:8888'
 #
-#  minio:
-#    image: minio/minio
-#    hostname: minio
-#    container_name: minio
-#    ports: 
-#      - '9000:9000'
-#      - '9001:9001'
-#    environment:
-#      MINIO_ACCESS_KEY: minio
-#      MINIO_SECRET_KEY: minio123
-#    command: server /data --console-address ":9001"
