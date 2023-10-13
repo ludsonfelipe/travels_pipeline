@@ -1,0 +1,15 @@
+{
+    "name": "s3-sink",
+    "config": {
+        "connector.class": "io.aiven.kafka.connect.s3.AivenKafkaConnectS3SinkConnector",
+        "aws.access.key.id": "minio",
+        "aws.s3.bucket.name": "bronze",
+        "aws.s3.endpoint": "http://minio:9000",
+        "aws.s3.region": "us-east-1",
+        "aws.secret.access.key": "minio123",
+        "format.output.type": "jsonl",
+        "topics": "postgres.public.usuarios",
+        "file.compression.type": "none",
+        "file.name.template": "{{topic}}-{{partition}}-{{start_offset}}-{{timestamp:unit=yyyy}}{{timestamp:unit=MM}}{{timestamp:unit=dd}}.json"
+    }
+}

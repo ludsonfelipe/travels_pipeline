@@ -2,6 +2,7 @@
   "name": "travels-db-connector",  
   "config": {
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
     "plugin.name": "pgoutput", 
     "database.hostname": "relational_db", 
     "database.port": "5432", 

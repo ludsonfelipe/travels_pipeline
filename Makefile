@@ -2,9 +2,14 @@
 start_docker:
 	docker compose --env-file ./.env up --build
 
-# Debezium
+# Connect
 send_debezium_connector:
-	curl -i -X POST -H "Accept: application/json" -H "Content-Type: application/json" localhost:8083/connectors/ -d @payload.json
+	curl -i -X POST -H "Accept: application/json" -H "Content-Type: application/json" localhost:8083/connectors/ -d @./connectors/pg_debezium.json
+send_s3_connector:
+	curl -i -X POST -H "Accept: application/json" -H "Content-Type: application/json" localhost:8083/connectors/ -d @./connectors/s3_kafka.json
+delete_connector:
+	curl -X DELETE localhost:8083/connectors/$(conn)
+create_connectors: send_debezium_connector send_s3_connector
 
 # Postgres
 connect_postgres:
@@ -20,9 +25,10 @@ read_topic:
 minio_console:
 	docker exec -it minio bash
 minio_bronze_layer:
-	docker exec -it minio bash -c "mc mb data/bronze"
+	docker exec -it minio bash -c "mc rm --force --dangerous data/bronze; mc mb data/bronze"
 minio_silver_layer:
-	docker exec -it minio bash -c "mc mb data/silver"
+	docker exec -it minio bash -c "mc rm --force --dangerous data/silver; mc mb data/silver"
 minio_gold_layer:
-	docker exec -it minio bash -c "mc mb data/gold"
+	docker exec -it minio bash -c "mc rm --force --dangerous data/gold; mc mb data/gold"
 minio_layers: minio_bronze_layer minio_silver_layer minio_gold_layer
+
