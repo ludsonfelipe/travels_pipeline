@@ -8,8 +8,8 @@
         "aws.s3.region": "us-east-1",
         "aws.secret.access.key": "minio123",
         "format.output.type": "jsonl",
-        "topics": "postgres.public.usuarios",
+        "topics": "postgres.public.usuarios,postgres.public.viagens,postgres.public.motoristas,postgres.public.veiculos,postgres.public.pagamentos",
         "file.compression.type": "none",
-        "file.name.template": "{{topic}}-{{partition}}-{{start_offset}}-{{timestamp:unit=yyyy}}{{timestamp:unit=MM}}{{timestamp:unit=dd}}.json"
+        "file.name.template": "relational_db/{{topic}}-{{partition}}-{{start_offset}}-{{timestamp:unit=yyyy}}{{timestamp:unit=MM}}{{timestamp:unit=dd}}.json"
     }
 }

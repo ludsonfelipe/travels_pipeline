@@ -10,6 +10,7 @@
     "database.password": "123456", 
     "database.dbname" : "travels_db", 
     "database.server.name": "postgres",
+    "decimal.handling.mode":"double",
     "topic.prefix": "postgres"
   }
 }

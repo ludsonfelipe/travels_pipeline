@@ -1,5 +1,5 @@
 # Docker
-start_docker:
+start:
 	docker compose --env-file ./.env up --build
 
 # Connect
@@ -32,3 +32,6 @@ minio_gold_layer:
 	docker exec -it minio bash -c "mc rm --force --dangerous data/gold; mc mb data/gold"
 minio_layers: minio_bronze_layer minio_silver_layer minio_gold_layer
 
+# Spark
+spark_console:
+	docker exec -it spark bash

@@ -1,64 +1,64 @@
 version: '3'
 
 services:
-  relational_db:
-    image: debezium/postgres:15
-    container_name: relational_db
-    hostname: relational_db
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'pg_isready',
-          '-d',
-          '${POSTGRES_DB}',
-          '-U',
-          '${POSTGRES_USER}'
-        ]
-    ports:
-      - '5432:5432'
-    volumes:
-      - ./source/relational_db/schemas/init.sql:/docker-entrypoint-initdb.d/init.sql
+  #relational_db:
+  #  image: debezium/postgres:15
+  #  container_name: relational_db
+  #  hostname: relational_db
+  #  environment:
+  #    POSTGRES_USER: ${POSTGRES_USER}
+  #    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #    POSTGRES_DB: ${POSTGRES_DB}
+  #  healthcheck:
+  #    test:
+  #      [
+  #        'CMD',
+  #        'pg_isready',
+  #        '-d',
+  #        '${POSTGRES_DB}',
+  #        '-U',
+  #        '${POSTGRES_USER}'
+  #      ]
+  #  ports:
+  #    - '5432:5432'
+  #  volumes:
+  #    - ./source/relational_db/schemas/init.sql:/docker-entrypoint-initdb.d/init.sql
+#
+  #zookeeper:
+  #  container_name: zookeeper
+  #  image: quay.io/debezium/zookeeper:2.3.4.Final
+  #  ports:
+  #   - 2181:2181
+  #   - 2888:2888
+  #   - 3888:3888
+  #
+  #kafka:
+  #  container_name: kafka
+  #  image: quay.io/debezium/kafka:2.3.4.Final
+  #  ports:
+  #   - 9092:9092
+  #  links:
+  #   - zookeeper
+  #  environment:
+  #   - ZOOKEEPER_CONNECT=zookeeper:2181
+  #
+  #connect:
+  #  container_name: debezium
+  #  build: 
+  #    context: .
+  #    dockerfile: Dockerfile
+  #  ports:
+  #   - 8083:8083
+  #  links:
+  #   - kafka
+  #   - relational_db
+  #  environment:
+  #   - BOOTSTRAP_SERVERS=kafka:9092
+  #   - GROUP_ID=1
+  #   - CONFIG_STORAGE_TOPIC=my_connect_configs
+  #   - OFFSET_STORAGE_TOPIC=my_connect_offsets
+  #   - STATUS_STORAGE_TOPIC=my_connect_statuses
 
-  zookeeper:
-    container_name: zookeeper
-    image: quay.io/debezium/zookeeper:2.3.4.Final
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
-  
-  kafka:
-    container_name: kafka
-    image: quay.io/debezium/kafka:2.3.4.Final
-    ports:
-     - 9092:9092
-    links:
-     - zookeeper
-    environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
-  
-  connect:
-    container_name: debezium
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    ports:
-     - 8083:8083
-    links:
-     - kafka
-     - relational_db
-    environment:
-     - BOOTSTRAP_SERVERS=kafka:9092
-     - GROUP_ID=1
-     - CONFIG_STORAGE_TOPIC=my_connect_configs
-     - OFFSET_STORAGE_TOPIC=my_connect_offsets
-     - STATUS_STORAGE_TOPIC=my_connect_statuses
-  
   minio:
     container_name: minio
     image: minio/minio
@@ -71,11 +71,18 @@ services:
       MINIO_SECRET_KEY: minio123
     volumes:
       - ./lakehouse:/data
+    links:
+    - spark
     command: server /data --console-address ":9001"
   
-#  spark:
-#    image: deltaio/delta-docker
-#    container_name: spark
-#    ports:
-#      - '8888:8888'
-#
+  spark:
+    image: deltaio/delta-docker
+    container_name: spark
+    ports:
+      - '8888:8888'
+    volumes:
+      - ./source/pipeline:/opt/spark/work-dir/pipeline
+    environment:
+      - AWS_ACCESS_KEY_ID=minio
+      - AWS_SECRET_ACCESS_KEY=minio123
+      - ENDPOINT=http://localhost:9001/
